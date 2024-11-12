@@ -1,6 +1,6 @@
-//Custom Errors
+// Custom Errors
 export const errorHandler = (statusCode, message) => {
-  const error = new Error();
+  const error = new Error(message);
   error.statusCode = statusCode;
-  error.message = message;
-}
+  return error; // Return the error object
+};
