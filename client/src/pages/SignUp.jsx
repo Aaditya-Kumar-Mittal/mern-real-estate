@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import OAuth from "../components/OAuth";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
@@ -69,10 +70,11 @@ const SignUp = () => {
           id="password"
           onChange={handleChange}
         />
-        <button className="bg-slate-800 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">
+        <button className="bg-green-800 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">
           {/* Conditional Rendering in React */}
-          {loading ? "Looading..." : "Sign Up"}
+          {loading ? "Loading..." : "Sign Up"}
         </button>
+        <OAuth/>
       </form>
 
       <div className="flex items-center gap-4 max-w-lg justify-center mt-5">

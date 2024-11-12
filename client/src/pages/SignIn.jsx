@@ -1,11 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInFailure,
+  signInSuccess,
+} from "../redux/user/userSlice";
+import OAuth from "../components/OAuth";
 
 const SignIn = () => {
-  const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({});
+
+  // const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(false);
+
+  const { currentUser, loading, error } = useSelector((state) => state.user); //Refering to the current state of the user defined in store.js in redux
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -15,7 +28,7 @@ const SignIn = () => {
     e.preventDefault(); //Click on button refreshes, preventDefault prevents automatic refreshing of the page
 
     try {
-      setLoading(true);
+      dispatch(signInStart()); // Start Loading
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -29,18 +42,19 @@ const SignIn = () => {
 
       //If sign up error
       if (data.success == false) {
-        setLoading(false);
-        setError(data.message); //Message one gets from middleware in index.js
+        // setLoading(false);
+        // setError(data.message); //Message one gets from middleware in index.js
+        dispatch(signInFailure(data.message));
         return;
       }
 
-      setLoading(false);
-      setError(null);
-      navigate("/");
+      // setLoading(false);
+      // setError(null);
+      dispatch(signInSuccess(data.rest)); // Dispatch the success action with the correct data
+      navigate("/"); // Redirect after successful sign-in
     } catch (error) {
       //Any other error is there
-      setLoading(false);
-      setError(error.message);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -64,8 +78,9 @@ const SignIn = () => {
         />
         <button className="bg-red-800 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">
           {/* Conditional Rendering in React */}
-          {loading ? "Looading..." : "Sign In"}
+          {loading ? "Loading..." : "Sign In"}
         </button>
+        <OAuth/>
       </form>
 
       <div className="flex items-center gap-4 max-w-lg justify-center mt-5">
