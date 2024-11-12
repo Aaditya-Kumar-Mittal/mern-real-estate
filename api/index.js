@@ -14,21 +14,22 @@ app.use(express.json());
 mongoose.connect(process.env.MONGO)
   .then(() => {
     console.log("Connected to MongoDB");
+
+    // Start the server only after successful MongoDB connection
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   })
   .catch((err) => {
     console.error("Error connecting to MongoDB: ", err);
   });
 
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
+// Define routes
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 
+// Error-handling middleware
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";

@@ -1,15 +1,48 @@
 import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import OAuth from "../components/OAuth";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); //Click on button refreshes, preventDefault prevents automatic refreshing of the page
-    console.log(formData);
+
+    try {
+      setLoading(true);
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      //If sign up error
+      if (data.success == false) {
+        setLoading(false);
+        setError(data.message); //Message one gets from middleware in index.js
+        return;
+      }
+
+      setLoading(false);
+      setError(null);
+      navigate("/sign-in");
+    } catch (error) {
+      //Any other error is there
+      setLoading(false);
+      setError(error.message);
+    }
   };
 
   return (
@@ -37,15 +70,20 @@ const SignUp = () => {
           id="password"
           onChange={handleChange}
         />
-        <button className="bg-slate-800 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">
-          Sign Up
+        <button className="bg-green-800 text-white p-3 rounded-lg hover:opacity-95 disabled:opacity-80">
+          {/* Conditional Rendering in React */}
+          {loading ? "Loading..." : "Sign Up"}
         </button>
+        <OAuth/>
       </form>
 
       <div className="flex items-center gap-4 max-w-lg justify-center mt-5">
         <p>Have an acccount already?</p>
-        <span className="text-1xl text-blue-700">Sign In</span>
+        <Link to={"/sign-in"}>
+          <span className="text-1xl text-blue-700">Sign In</span>
+        </Link>
       </div>
+      {error && <p className="text-red-500 m">{error}</p>}
     </div>
   );
 };
